@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Simulations — Physics Learning Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ---- Simulations page–specific overrides ---- */
+
+    /* Hero / page header */
+    .sim-page-hero {
+      padding: calc(var(--nav-h) + 64px) 0 56px;
+      text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%,
+        rgba(99, 102, 241, 0.10) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .sim-page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 40% 80% at 80% 50%,
+        rgba(139, 92, 246, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .sim-hero-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .sim-hero-back:hover {
+      color: var(--text-primary);
+      border-color: rgba(99,102,241,0.35);
+      background: rgba(99,102,241,0.06);
+    }
+
+    .sim-hero-back svg {
+      width: 14px; height: 14px;
+      display: inline-block;
+    }
+
+    .sim-page-hero .hero-badge {
+      animation: none;
+      margin-bottom: 20px;
+    }
+
+    .sim-page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin-bottom: 18px;
+    }
+
+    .sim-page-subtitle {
+      color: var(--text-secondary);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Tab nav strip */
+    .sim-tab-strip {
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 100;
+      background: rgba(7, 11, 20, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
+    }
+
+    .sim-tab-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sim-tab-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-right: 6px;
+    }
+
+    /* Simulation blocks — full-width stacked layout */
+    .sim-blocks-section {
+      padding: 64px 0 80px;
+    }
+
+    .sim-block {
+      margin-bottom: 72px;
+      padding-bottom: 72px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .sim-block:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .sim-block-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .sim-block-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-indigo);
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 999px;
+      padding: 4px 12px;
+      white-space: nowrap;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .sim-block-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .sim-block-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* Wider canvas layout on dedicated page */
+    .sim-block .demo-layout {
+      grid-template-columns: 1fr 360px;
+    }
+
+    /* Make canvas area taller on dedicated page */
+    .sim-block .demo-canvas-wrap canvas {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Footer link back */
+    .sim-footer-back {
+      text-align: center;
+      padding: 48px 0 64px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 16px;
+    }
+
+    .sim-footer-back p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    /* Active nav link highlight on simulations page */
+    .nav-link.active-page {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sim-block .demo-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sim-blocks-section { padding: 40px 0 60px; }
+      .sim-block { margin-bottom: 52px; padding-bottom: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">⚛</span>
+        <span class="logo-text">PhysicsHub</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="simulations.html" class="nav-link active-page">Simulations</a></li>
+        <li><a href="index.html#resources" class="nav-link">Resources</a></li>
+        <li><a href="index.html#about" class="nav-link">About</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================== PAGE HERO ===================== -->
+  <section class="sim-page-hero">
+    <div class="container">
+      <div>
+        <a href="index.html" class="sim-hero-back">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Hub
+        </a>
+      </div>
+      <div class="hero-badge">Physics Sandbox</div>
+      <h1 class="sim-page-title">
+        Interactive<br />
+        <span class="gradient-text">Simulations</span>
+      </h1>
+      <p class="sim-page-subtitle">
+        Experiment with physics in real time. Adjust parameters and watch the laws of nature unfold before your eyes.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== STICKY TAB STRIP ===================== -->
+  <div class="sim-tab-strip">
+    <div class="sim-tab-inner">
+      <span class="sim-tab-label">Jump to:</span>
+      <div class="demo-tabs" style="margin-bottom:0; justify-content:flex-start;">
+        <button class="demo-tab active" data-demo="projectile">Projectile Motion</button>
+        <button class="demo-tab" data-demo="pendulum">Pendulum</button>
+        <button class="demo-tab" data-demo="wave">Wave Interference</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SIMULATION BLOCKS ===================== -->
+  <section class="sim-blocks-section">
+    <div class="container">
+
+      <!-- ---- 1. Projectile Motion ---- -->
+      <div class="sim-block" id="demo-projectile">
+        <div class="sim-block-header">
+          <span class="sim-block-number">Sim 01</span>
+          <div>
+            <h2 class="sim-block-title">Projectile Motion</h2>
+            <p class="sim-block-desc">
+              Launch a projectile at any angle and initial velocity and observe its parabolic arc.
+              Explore how gravity, launch angle, and speed determine range, max height, and flight time.
+            </p>
+          </div>
+        </div>
+
+        <div class="demo-layout">
+          <div class="demo-canvas-wrap">
+            <canvas id="projectileCanvas" width="760" height="400"></canvas>
+            <div class="canvas-overlay" id="projectileOverlay">
+              <span>Adjust parameters &amp; click Launch</span>
+            </div>
+          </div>
+          <div class="demo-controls">
+            <h3 class="controls-title">Projectile Motion</h3>
+            <p class="controls-desc">Simulate a projectile launched at an angle with initial velocity. Gravity = 9.8 m/s²</p>
+            <div class="control-group">
+              <label for="projAngle">Launch Angle: <strong id="angleVal">45°</strong></label>
+              <input type="range" id="projAngle" min="5" max="85" value="45" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="projVelocity">Initial Velocity: <strong id="velVal">20 m/s</strong></label>
+              <input type="range" id="projVelocity" min="5" max="40" value="20" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="projGravity">Gravity: <strong id="gravVal">9.8 m/s²</strong></label>
+              <input type="range" id="projGravity" min="1" max="25" value="9.8" step="0.1" class="slider" />
+            </div>
+            <div class="demo-readouts">
+              <div class="readout">
+                <span class="readout-label">Max Height</span>
+                <span class="readout-value" id="readMaxH">—</span>
+              </div>
+              <div class="readout">
+                <span class="readout-label">Range</span>
+                <span class="readout-value" id="readRange">—</span>
+              </div>
+              <div class="readout">
+                <span class="readout-label">Time of Flight</span>
+                <span class="readout-value" id="readTime">—</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="launchBtn">&#9654; Launch</button>
+            <button class="btn btn-ghost" id="resetProjBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- 2. Pendulum ---- -->
+      <div class="sim-block" id="demo-pendulum">
+        <div class="sim-block-header">
+          <span class="sim-block-number">Sim 02</span>
+          <div>
+            <h2 class="sim-block-title">Simple Pendulum</h2>
+            <p class="sim-block-desc">
+              A mass on a string swinging under gravity. Discover the relationship between rope length
+              and period, and see how damping gradually steals energy from the system.
+            </p>
+          </div>
+        </div>
+
+        <div class="demo-layout">
+          <div class="demo-canvas-wrap">
+            <canvas id="pendulumCanvas" width="760" height="400"></canvas>
+          </div>
+          <div class="demo-controls">
+            <h3 class="controls-title">Simple Pendulum</h3>
+            <p class="controls-desc">A pendulum swinging under gravity. Notice how period depends on length, not mass.</p>
+            <div class="control-group">
+              <label for="pendLength">Rope Length: <strong id="lenVal">150 px</strong></label>
+              <input type="range" id="pendLength" min="60" max="220" value="150" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="pendAngle">Release Angle: <strong id="pendAngleVal">30°</strong></label>
+              <input type="range" id="pendAngle" min="5" max="75" value="30" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="pendDamping">Damping: <strong id="dampVal">0.00</strong></label>
+              <input type="range" id="pendDamping" min="0" max="0.05" value="0" step="0.001" class="slider" />
+            </div>
+            <div class="demo-readouts">
+              <div class="readout">
+                <span class="readout-label">Period (approx)</span>
+                <span class="readout-value" id="readPeriod">—</span>
+              </div>
+              <div class="readout">
+                <span class="readout-label">Angle</span>
+                <span class="readout-value" id="readAngle">—</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="pendToggleBtn">&#9646;&#9646; Pause</button>
+            <button class="btn btn-ghost" id="resetPendBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- 3. Wave Interference ---- -->
+      <div class="sim-block" id="demo-wave">
+        <div class="sim-block-header">
+          <span class="sim-block-number">Sim 03</span>
+          <div>
+            <h2 class="sim-block-title">Wave Interference</h2>
+            <p class="sim-block-desc">
+              Two wave sources superimposed to create constructive and destructive interference patterns.
+              Match the frequencies for a standing wave, or detune them to hear (and see) beats.
+            </p>
+          </div>
+        </div>
+
+        <div class="demo-layout">
+          <div class="demo-canvas-wrap">
+            <canvas id="waveCanvas" width="760" height="400"></canvas>
+          </div>
+          <div class="demo-controls">
+            <h3 class="controls-title">Wave Interference</h3>
+            <p class="controls-desc">Two wave sources creating constructive and destructive interference patterns.</p>
+            <div class="control-group">
+              <label for="wave1Freq">Wave 1 Frequency: <strong id="w1FreqVal">2.0 Hz</strong></label>
+              <input type="range" id="wave1Freq" min="0.5" max="5" value="2" step="0.1" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="wave2Freq">Wave 2 Frequency: <strong id="w2FreqVal">2.0 Hz</strong></label>
+              <input type="range" id="wave2Freq" min="0.5" max="5" value="2" step="0.1" class="slider" />
+            </div>
+            <div class="control-group">
+              <label for="waveAmp">Amplitude: <strong id="wAmpVal">1.0</strong></label>
+              <input type="range" id="waveAmp" min="0.2" max="2" value="1" step="0.1" class="slider" />
+            </div>
+            <div class="demo-readouts">
+              <div class="readout">
+                <span class="readout-label">Beat Frequency</span>
+                <span class="readout-value" id="readBeat">—</span>
+              </div>
+              <div class="readout">
+                <span class="readout-label">Pattern</span>
+                <span class="readout-value" id="readPattern">—</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="waveToggleBtn">&#9646;&#9646; Pause</button>
+            <button class="btn btn-ghost" id="resetWaveBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER BACK LINK ===================== -->
+  <div class="sim-footer-back">
+    <div class="container">
+      <p>Want to explore more? Head back to the full learning hub.</p>
+      <a href="index.html" class="btn btn-primary">Back to Physics Hub</a>
+    </div>
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <span class="logo-icon">⚛</span>
+            <span class="logo-text">PhysicsHub</span>
+          </div>
+          <p>An interactive learning platform for physics students and educators.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Simulations</h4>
+          <ul>
+            <li><a href="#demo-projectile">Projectile Motion</a></li>
+            <li><a href="#demo-pendulum">Pendulum</a></li>
+            <li><a href="#demo-wave">Wave Interference</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Site</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#topics">Topics</a></li>
+            <li><a href="index.html#resources">Resources</a></li>
+            <li><a href="index.html#about">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="index.html#resources">Video Lectures</a></li>
+            <li><a href="index.html#resources">Study Guides</a></li>
+            <li><a href="index.html#resources">Practice Problems</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Physics Learning Hub. Built for educational use.</p>
+        <p>Powered by curiosity and the laws of nature.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts — no particles.js needed on this page -->
+  <script src="simulations.js"></script>
+</body>
+</html>
