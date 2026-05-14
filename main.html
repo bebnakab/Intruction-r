@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics Learning Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <span class="logo-icon">⚛</span>
+        <span class="logo-text">PhysicsHub</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="main-course.html" class="nav-link">Course</a></li>
+        <li><a href="simulations.html" class="nav-link">Simulations</a></li>
+        <li><a href="#resources" class="nav-link">Resources</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="home">
+    <canvas id="particleCanvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">AP &amp; College Physics</div>
+      <h1 class="hero-title">
+        Physics<br />
+        <span class="gradient-text">Learning Hub</span>
+      </h1>
+      <p class="hero-subtitle">
+        Explore the fundamental forces that govern our universe. Interactive simulations,
+        guided lessons, and curated resources — all in one place.
+      </p>
+      <div class="hero-actions">
+        <a href="main-course.html" class="btn btn-primary">Start Learning</a>
+        <a href="simulations.html" class="btn btn-ghost">Try a Simulation</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">5</span>
+          <span class="stat-label">Core Units</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">40+</span>
+          <span class="stat-label">Resources</span>
+        </div>
+        <div class="stat-divider"></div>
+        <a href="simulations.html" class="stat" style="text-decoration:none;cursor:pointer;">
+          <span class="stat-number">8</span>
+          <span class="stat-label">Labs</span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="particles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

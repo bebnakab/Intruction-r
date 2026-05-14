@@ -3,473 +3,1046 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interactive Simulations — Physics Learning Hub</title>
+  <title>Virtual Lab Portal — Physics Learning Hub</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    /* ---- Simulations page–specific overrides ---- */
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Hero / page header */
-    .sim-page-hero {
-      padding: calc(var(--nav-h) + 64px) 0 56px;
-      text-align: center;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%,
-        rgba(99, 102, 241, 0.10) 0%, transparent 70%);
-      border-bottom: 1px solid var(--border-subtle);
-      position: relative;
+    :root {
+      --bg-deep:       #050c18;
+      --bg-panel:      #0b1528;
+      --bg-card:       rgba(13, 25, 50, 0.72);
+      --border-card:   rgba(56, 139, 253, 0.18);
+      --border-hover:  rgba(0, 220, 255, 0.65);
+      --accent-cyan:   #00dcff;
+      --accent-blue:   #3b82f6;
+      --accent-purple: #a855f7;
+      --text-primary:  #e8f0fe;
+      --text-secondary:#8ba3cc;
+      --text-muted:    #4a6080;
+      --badge-bg:      rgba(0, 220, 255, 0.08);
+      --glow-cyan:     0 0 24px rgba(0, 220, 255, 0.35), 0 0 6px rgba(0, 220, 255, 0.18);
+      --transition:    0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .sim-page-hero::before {
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── Animated starfield background ───────────────────────── */
+    body::before {
       content: '';
-      position: absolute;
+      position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 40% 80% at 80% 50%,
-        rgba(139, 92, 246, 0.06) 0%, transparent 60%);
+      background-image:
+        radial-gradient(1px 1px at 12% 8%,  rgba(255,255,255,0.55) 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 22%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 5%,  rgba(255,255,255,0.6)  0%, transparent 100%),
+        radial-gradient(1px 1px at 67% 18%, rgba(255,255,255,0.4)  0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 3%,  rgba(255,255,255,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 93% 14%, rgba(255,255,255,0.3)  0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  35%, rgba(255,255,255,0.45) 0%, transparent 100%),
+        radial-gradient(1px 1px at 18% 48%, rgba(255,255,255,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 36% 55%, rgba(255,255,255,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 52% 42%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 71% 60%, rgba(255,255,255,0.45) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 38%, rgba(255,255,255,0.3)  0%, transparent 100%),
+        radial-gradient(1px 1px at 9%  72%, rgba(255,255,255,0.4)  0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,0.3)  0%, transparent 100%),
+        radial-gradient(1px 1px at 58% 75%, rgba(255,255,255,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 76% 85%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 70%, rgba(255,255,255,0.45) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 90%, rgba(0,220,255,0.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 62% 95%, rgba(59,130,246,0.5) 0%, transparent 100%);
       pointer-events: none;
+      z-index: 0;
     }
 
-    .sim-hero-back {
+    /* ─── Gradient orbs ────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 0%,   rgba(0, 180, 255, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 80% 10%,  rgba(168, 85, 247, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 50% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Layout wrapper ───────────────────────────────────────── */
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Hero ─────────────────────────────────────────────────── */
+    .lab-hero {
+      padding: calc(var(--nav-h) + 24px) 0 64px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border-subtle);
-      padding: 6px 16px;
-      border-radius: 999px;
-      margin-bottom: 32px;
-      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      background: rgba(0, 220, 255, 0.08);
+      border: 1px solid rgba(0, 220, 255, 0.22);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
     }
 
-    .sim-hero-back:hover {
-      color: var(--text-primary);
-      border-color: rgba(99,102,241,0.35);
-      background: rgba(99,102,241,0.06);
+    .hero-eyebrow span.dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      animation: pulse-dot 2s ease-in-out infinite;
     }
 
-    .sim-hero-back svg {
-      width: 14px; height: 14px;
-      display: inline-block;
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.75); }
     }
 
-    .sim-page-hero .hero-badge {
-      animation: none;
-      margin-bottom: 20px;
-    }
-
-    .sim-page-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
+    .lab-hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
       font-weight: 800;
+      line-height: 1.1;
       letter-spacing: -0.03em;
-      line-height: 1.08;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #e8f0fe 0%, var(--accent-cyan) 55%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .sim-page-subtitle {
+    .hero-tagline {
+      font-size: clamp(1rem, 2.5vw, 1.22rem);
       color: var(--text-secondary);
-      font-size: clamp(0.95rem, 2vw, 1.1rem);
-      max-width: 500px;
-      margin: 0 auto;
+      max-width: 560px;
+      margin: 0 auto 48px;
+      font-weight: 400;
       line-height: 1.7;
     }
 
-    /* Tab nav strip */
-    .sim-tab-strip {
-      position: sticky;
-      top: var(--nav-h);
-      z-index: 100;
-      background: rgba(7, 11, 20, 0.88);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 14px 24px;
+    /* ─── Search bar ───────────────────────────────────────────── */
+    .search-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 44px;
     }
 
-    .sim-tab-inner {
-      max-width: 1180px;
-      margin: 0 auto;
+    .search-box {
+      position: relative;
+      width: min(100%, 520px);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: color var(--transition);
+    }
+
+    .search-box:focus-within svg { color: var(--accent-cyan); }
+
+    #search-input {
+      width: 100%;
+      padding: 14px 18px 14px 50px;
+      background: rgba(13, 25, 50, 0.8);
+      border: 1px solid rgba(56, 139, 253, 0.22);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.97rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      backdrop-filter: blur(12px);
+    }
+
+    #search-input::placeholder { color: var(--text-muted); }
+
+    #search-input:focus {
+      border-color: rgba(0, 220, 255, 0.5);
+      box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+    }
+
+    /* ─── Filter chips ─────────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+
+    .lab-chip {
+      padding: 7px 18px;
+      border-radius: 100px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(56, 139, 253, 0.25);
+      background: rgba(13, 25, 50, 0.6);
+      color: var(--text-secondary);
+      transition: all var(--transition);
+      user-select: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .lab-chip:hover {
+      border-color: rgba(0, 220, 255, 0.5);
+      color: var(--accent-cyan);
+      background: rgba(0, 220, 255, 0.06);
+    }
+
+    .lab-chip.active {
+      background: rgba(0, 220, 255, 0.12);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0, 220, 255, 0.18);
+    }
+
+    /* ─── Section header ───────────────────────────────────────── */
+    .lab-section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .lab-section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.03em;
+    }
+
+    #results-count {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── Card grid ────────────────────────────────────────────── */
+    #cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    @media (max-width: 1024px) {
+      #cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      #cards-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Lab card ─────────────────────────────────────────────── */
+    .lab-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+      cursor: default;
+      animation: card-in 0.5s ease both;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .lab-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border-hover);
+      box-shadow: var(--glow-cyan), 0 24px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ─── Thumbnail ────────────────────────────────────────────── */
+    .card-thumb {
+      width: 100%;
+      height: 160px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .sim-tab-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-right: 6px;
-    }
-
-    /* Simulation blocks — full-width stacked layout */
-    .sim-blocks-section {
-      padding: 64px 0 80px;
-    }
-
-    .sim-block {
-      margin-bottom: 72px;
-      padding-bottom: 72px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .sim-block:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .sim-block-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-
-    .sim-block-number {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent-indigo);
-      background: rgba(99,102,241,0.1);
-      border: 1px solid rgba(99,102,241,0.2);
-      border-radius: 999px;
-      padding: 4px 12px;
-      white-space: nowrap;
-      margin-top: 6px;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
       flex-shrink: 0;
     }
 
-    .sim-block-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.4rem, 3vw, 2rem);
+    .card-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 55%, var(--bg-card) 100%);
+      pointer-events: none;
+    }
+
+    .card-thumb svg {
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 12px currentColor);
+      transition: transform var(--transition);
+    }
+
+    .lab-card:hover .card-thumb svg {
+      transform: scale(1.08);
+    }
+
+    /* ─── Card body ────────────────────────────────────────────── */
+    .card-body {
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 10px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-category {
+      font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
-    }
-
-    .sim-block-desc {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    /* Wider canvas layout on dedicated page */
-    .sim-block .demo-layout {
-      grid-template-columns: 1fr 360px;
-    }
-
-    /* Make canvas area taller on dedicated page */
-    .sim-block .demo-canvas-wrap canvas {
-      width: 100%;
-      height: auto;
-    }
-
-    /* Footer link back */
-    .sim-footer-back {
-      text-align: center;
-      padding: 48px 0 64px;
-      border-top: 1px solid var(--border-subtle);
-      margin-top: 16px;
-    }
-
-    .sim-footer-back p {
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 20px;
     }
 
-    /* Active nav link highlight on simulations page */
-    .nav-link.active-page {
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+    }
+
+    .badge-beginner     { background: rgba(34, 197, 94, 0.12);  color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.25); }
+    .badge-intermediate { background: rgba(251, 191, 36, 0.1);  color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.22); }
+    .badge-advanced     { background: rgba(239, 68, 68, 0.1);   color: #f87171; border: 1px solid rgba(239, 68, 68, 0.22); }
+
+    .card-title {
+      font-size: 1.08rem;
+      font-weight: 700;
       color: var(--text-primary);
-      background: rgba(255,255,255,0.07);
+      line-height: 1.3;
     }
 
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .sim-block .demo-layout {
-        grid-template-columns: 1fr;
-      }
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      flex: 1;
     }
 
-    @media (max-width: 768px) {
-      .sim-blocks-section { padding: 40px 0 60px; }
-      .sim-block { margin-bottom: 52px; padding-bottom: 52px; }
+    /* ─── Enter Lab button ─────────────────────────────────────── */
+    .btn-enter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 11px 0;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(0, 220, 255, 0.14) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid rgba(0, 220, 255, 0.3);
+      border-radius: 10px;
+      color: var(--accent-cyan);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-enter:hover {
+      background: linear-gradient(135deg, rgba(0, 220, 255, 0.24) 0%, rgba(59, 130, 246, 0.18) 100%);
+      border-color: rgba(0, 220, 255, 0.65);
+      box-shadow: 0 0 16px rgba(0, 220, 255, 0.22);
+      color: #fff;
+    }
+
+    .btn-enter:active {
+      transform: scale(0.97);
+    }
+
+    .btn-enter svg { transition: transform var(--transition); }
+    .btn-enter:hover svg { transform: translateX(3px); }
+
+    /* ─── Empty state ──────────────────────────────────────────── */
+    #empty-state {
+      display: none;
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 72px 24px;
+    }
+
+    #empty-state svg { margin-bottom: 20px; color: var(--text-muted); }
+    #empty-state h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+    #empty-state p  { font-size: 0.88rem; color: var(--text-muted); }
+
+    /* ─── Footer ───────────────────────────────────────────────── */
+    .lab-footer {
+      border-top: 1px solid rgba(56, 139, 253, 0.1);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+    }
+
+    .lab-footer a { color: var(--accent-cyan); text-decoration: none; }
+    .lab-footer a:hover { text-decoration: underline; }
+
+    /* ─── Toast notification ───────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(13, 25, 50, 0.95);
+      border: 1px solid rgba(0, 220, 255, 0.4);
+      border-radius: 12px;
+      padding: 14px 24px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), var(--glow-cyan);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── Active nav override ──────────────────────────────────── */
+    .nav-link.active-page {
+      color: var(--text-primary) !important;
     }
   </style>
 </head>
 <body>
 
-  <!-- ===================== NAVIGATION ===================== -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <span class="logo-icon">⚛</span>
-        <span class="logo-text">PhysicsHub</span>
-      </a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html" class="nav-link">Home</a></li>
-        <li><a href="simulations.html" class="nav-link active-page">Simulations</a></li>
-        <li><a href="index.html#resources" class="nav-link">Resources</a></li>
-        <li><a href="index.html#about" class="nav-link">About</a></li>
-      </ul>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
+<!-- ── PhysicsHub Navigation ────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="main.html" class="nav-logo">
+      <span class="logo-icon">⚛</span>
+      <span class="logo-text">PhysicsHub</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="main-course.html" class="nav-link">Course</a></li>
+      <li><a href="simulations.html" class="nav-link active-page">Simulations</a></li>
+      <li><a href="main.html#resources" class="nav-link">Resources</a></li>
+      <li><a href="main.html#about" class="nav-link">About</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
 
-  <!-- ===================== PAGE HERO ===================== -->
-  <section class="sim-page-hero">
-    <div class="container">
-      <div>
-        <a href="index.html" class="sim-hero-back">
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- ── Hero ────────────────────────────────────────────────────── -->
+<div class="page-wrap">
+  <section class="lab-hero">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      8 Interactive Labs Available
+    </div>
+    <h1>Virtual Lab Portal</h1>
+    <p class="hero-tagline">
+      Hands-on science and engineering experiments — no equipment required.
+      Explore, simulate, and discover at your own pace.
+    </p>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search labs by name or topic…" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="filter-bar" id="filter-bar">
+      <button class="lab-chip active" data-filter="all">All</button>
+      <button class="lab-chip" data-filter="Physics">Physics</button>
+      <button class="lab-chip" data-filter="Biology">Biology</button>
+      <button class="lab-chip" data-filter="Chemistry">Chemistry</button>
+      <button class="lab-chip" data-filter="CS/AI">CS / AI</button>
+      <button class="lab-chip" data-filter="Astronomy">Astronomy</button>
+    </div>
+  </section>
+
+  <!-- ── Lab grid ─────────────────────────────────────────────── -->
+  <div class="lab-section-header">
+    <span class="lab-section-title">LABORATORY CATALOG</span>
+    <span id="results-count">8 labs</span>
+  </div>
+
+  <div id="cards-grid">
+    <!-- Cards injected by JS -->
+    <div id="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        <line x1="8" y1="11" x2="14" y2="11"/>
+      </svg>
+      <h3>No labs found</h3>
+      <p>Try a different search term or category filter.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ──────────────────────────────────────────────────── -->
+<footer class="lab-footer">
+  Virtual Lab Portal &copy; 2026 &nbsp;&middot;&nbsp;
+  <a href="main.html">Back to PhysicsHub</a> &nbsp;&middot;&nbsp;
+  Built for curiosity.
+</footer>
+
+<!-- ── Toast ────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+/* ─── Lab data ──────────────────────────────────────────────────── */
+const labs = [
+  {
+    id: 1,
+    title: "Circuit Simulator",
+    category: "Physics",
+    description: "Build and test electronic circuits in real time. Drag components, close loops, and watch current flow with live readouts.",
+    difficulty: "Beginner",
+    thumb: thumbCircuit()
+  },
+  {
+    id: 2,
+    title: "DNA Sequencing Lab",
+    category: "Biology",
+    description: "Explore genome analysis and mutation models. Visualize base-pair sequences, run alignment algorithms, and study hereditary patterns.",
+    difficulty: "Intermediate",
+    thumb: thumbDNA()
+  },
+  {
+    id: 3,
+    title: "Chemical Reaction Sandbox",
+    category: "Chemistry",
+    description: "Mix compounds, observe reactions and energy changes. Track molecular bonds, temperature curves, and reaction kinetics.",
+    difficulty: "Intermediate",
+    thumb: thumbAtom()
+  },
+  {
+    id: 4,
+    title: "Newtonian Mechanics",
+    category: "Physics",
+    description: "Simulate forces, collisions, and projectile motion. Adjust mass, velocity, and friction to observe classical mechanics principles.",
+    difficulty: "Beginner",
+    thumb: thumbMechanics()
+  },
+  {
+    id: 5,
+    title: "Neural Network Trainer",
+    category: "CS/AI",
+    description: "Train simple neural nets with visual feedback. Watch weights update in real time and explore how networks learn classification tasks.",
+    difficulty: "Advanced",
+    thumb: thumbNeural()
+  },
+  {
+    id: 6,
+    title: "Stellar Evolution",
+    category: "Astronomy",
+    description: "Observe a star's lifecycle from nebula to supernova. Manipulate mass and metallicity to chart the Hertzsprung–Russell diagram.",
+    difficulty: "Intermediate",
+    thumb: thumbStar()
+  },
+  {
+    id: 7,
+    title: "Fluid Dynamics",
+    category: "Physics",
+    description: "Model airflow, turbulence, and pressure gradients using interactive particle simulations. Explore Bernoulli's principle and Navier–Stokes behavior.",
+    difficulty: "Advanced",
+    thumb: thumbFluid()
+  },
+  {
+    id: 8,
+    title: "Genetics Crossbreeding",
+    category: "Biology",
+    description: "Run Mendelian inheritance experiments across generations. Configure allele dominance, track phenotype ratios, and test Punnett square predictions.",
+    difficulty: "Beginner",
+    thumb: thumbGenetics()
+  }
+];
+
+/* ─── SVG thumbnails ─────────────────────────────────────────────── */
+
+function thumbCircuit() {
+  const bg = `<defs>
+    <linearGradient id="gc1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f2a4a"/>
+      <stop offset="100%" stop-color="#061830"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gc1)"/>
+  ${gridDots(320, 160, 20, 'rgba(0,180,255,0.12)')}`;
+
+  const circuit = `
+  <polyline points="60,80 60,40 180,40 180,80" fill="none" stroke="#00dcff" stroke-width="2" stroke-linecap="round"/>
+  <polyline points="60,80 60,120 180,120 180,80" fill="none" stroke="#00dcff" stroke-width="2" stroke-linecap="round"/>
+  <line x1="180" y1="40" x2="260" y2="40" stroke="#00dcff" stroke-width="2"/>
+  <line x1="180" y1="120" x2="260" y2="120" stroke="#00dcff" stroke-width="2"/>
+  <line x1="260" y1="40" x2="260" y2="120" stroke="#00dcff" stroke-width="2"/>
+  <line x1="56" y1="68" x2="56" y2="92" stroke="#00dcff" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="50" y1="75" x2="50" y2="105" stroke="rgba(0,220,255,0.45)" stroke-width="2" stroke-linecap="round"/>
+  <rect x="100" y="33" width="40" height="14" rx="3" fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="100" y1="40" x2="90" y2="40" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="140" y1="40" x2="150" y2="40" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="115" y1="113" x2="115" y2="127" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="145" y1="113" x2="145" y2="127" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="100" y1="120" x2="115" y2="120" stroke="#00dcff" stroke-width="2"/>
+  <line x1="145" y1="120" x2="160" y2="120" stroke="#00dcff" stroke-width="2"/>
+  <circle cx="260" cy="80" r="9" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="260" cy="80" r="3" fill="#fbbf24" opacity="0.8"/>
+  <circle cx="60"  cy="40"  r="3.5" fill="#00dcff"/>
+  <circle cx="60"  cy="120" r="3.5" fill="#00dcff"/>
+  <circle cx="180" cy="40"  r="3.5" fill="#3b82f6"/>
+  <circle cx="180" cy="120" r="3.5" fill="#3b82f6"/>
+  <path d="M210 36 L220 40 L210 44" fill="none" stroke="#00dcff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+
+  return svgWrap(bg + circuit, 320, 160, '#0a1f40');
+}
+
+function thumbDNA() {
+  const bg = `<defs>
+    <linearGradient id="gdna" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1f0f"/>
+      <stop offset="100%" stop-color="#050c0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gdna)"/>`;
+
+  let strands = '';
+  const steps = 9;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const y = 10 + t * 140;
+    const phase = t * Math.PI * 3;
+    const x1 = 120 + Math.cos(phase) * 55;
+    const x2 = 200 + Math.cos(phase + Math.PI) * 55;
+    const c = `rgba(74,222,128,${0.45 + 0.45 * Math.abs(Math.cos(phase))})`;
+    strands += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/>`;
+    strands += `<circle cx="${x1}" cy="${y}" r="4" fill="rgba(74,222,128,0.6)"/>`;
+    strands += `<circle cx="${x2}" cy="${y}" r="4" fill="rgba(74,222,128,0.6)"/>`;
+  }
+  let pts1 = '', pts2 = '';
+  for (let i = 0; i <= 40; i++) {
+    const t = i / 40;
+    const y = 10 + t * 140;
+    const phase = t * Math.PI * 3;
+    pts1 += `${120 + Math.cos(phase) * 55},${y} `;
+    pts2 += `${200 + Math.cos(phase + Math.PI) * 55},${y} `;
+  }
+  const backbones = `
+    <polyline points="${pts1}" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <polyline points="${pts2}" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>`;
+
+  return svgWrap(bg + backbones + strands, 320, 160, '#061209');
+}
+
+function thumbAtom() {
+  const bg = `<defs>
+    <radialGradient id="gatom" cx="50%" cy="50%">
+      <stop offset="0%"   stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#07040f"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gatom)"/>`;
+
+  const nucleus = `
+  <circle cx="160" cy="80" r="10" fill="#a855f7" opacity="0.9"/>
+  <circle cx="160" cy="80" r="6"  fill="#c084fc"/>`;
+
+  const orbits = `
+  <ellipse cx="160" cy="80" rx="65" ry="28" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1.5" transform="rotate(0,160,80)"/>
+  <ellipse cx="160" cy="80" rx="65" ry="28" fill="none" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" transform="rotate(60,160,80)"/>
+  <ellipse cx="160" cy="80" rx="65" ry="28" fill="none" stroke="rgba(0,220,255,0.4)"  stroke-width="1.5" transform="rotate(120,160,80)"/>`;
+
+  const electrons = `
+  <circle cx="225" cy="80"  r="5" fill="#00dcff"  opacity="0.95"/>
+  <circle cx="128" cy="104" r="5" fill="#3b82f6"  opacity="0.95"/>
+  <circle cx="128" cy="56"  r="5" fill="#a855f7"  opacity="0.95"/>`;
+
+  return svgWrap(bg + orbits + nucleus + electrons, 320, 160, '#0a0415');
+}
+
+function thumbMechanics() {
+  const bg = `<defs>
+    <linearGradient id="gmech" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#050a14"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gmech)"/>
+  <line x1="0" y1="145" x2="320" y2="145" stroke="rgba(59,130,246,0.25)" stroke-width="1.5"/>
+  ${Array.from({length:10}, (_,i)=>`<line x1="${i*35}" y1="145" x2="${i*35-12}" y2="157" stroke="rgba(59,130,246,0.18)" stroke-width="1.2"/>`).join('')}`;
+
+  const scene = `
+  <polygon points="30,145 140,145 140,95" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+  <circle cx="90" cy="118" r="12" fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="90" cy="118" r="5"  fill="rgba(59,130,246,0.5)"/>
+  <line x1="90" y1="118" x2="140" y2="90" stroke="#00dcff" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="140,90 132,93 135,86" fill="#00dcff"/>
+  <path d="M140 90 Q200 45 270 95" fill="none" stroke="rgba(0,220,255,0.45)" stroke-width="1.8" stroke-dasharray="5 4"/>
+  <circle cx="270" cy="95" r="8" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="270" cy="95" r="3" fill="#fbbf24" opacity="0.7"/>
+  <line x1="90" y1="118" x2="90" y2="138" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="90,138 86,130 94,130" fill="#f87171"/>
+  <text x="95" y="136" fill="#f87171" font-size="9" font-family="Inter,sans-serif" opacity="0.8">Fg</text>
+  <text x="145" y="86" fill="#00dcff" font-size="9" font-family="Inter,sans-serif" opacity="0.8">v₀</text>`;
+
+  return svgWrap(bg + scene, 320, 160, '#080d1a');
+}
+
+function thumbNeural() {
+  const bg = `<defs>
+    <linearGradient id="gnn" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#05101f"/>
+      <stop offset="100%" stop-color="#0a0518"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gnn)"/>`;
+
+  const layers = [
+    { x: 60,  nodes: [45, 80, 115] },
+    { x: 130, nodes: [35, 65, 95, 125] },
+    { x: 200, nodes: [45, 80, 115] },
+    { x: 265, nodes: [65, 95] }
+  ];
+
+  let edges = '', nodes = '';
+
+  for (let l = 0; l < layers.length - 1; l++) {
+    const src = layers[l], dst = layers[l + 1];
+    for (const sy of src.nodes) {
+      for (const dy of dst.nodes) {
+        const alpha = 0.1 + Math.random() * 0.25;
+        const hue = l % 2 === 0 ? '0,220,255' : '168,85,247';
+        edges += `<line x1="${src.x}" y1="${sy}" x2="${dst.x}" y2="${dy}" stroke="rgba(${hue},${alpha.toFixed(2)})" stroke-width="1.2"/>`;
+      }
+    }
+  }
+
+  for (const layer of layers) {
+    for (const y of layer.nodes) {
+      const active = Math.random() > 0.45;
+      const fill = active ? 'rgba(0,220,255,0.25)' : 'rgba(168,85,247,0.15)';
+      const stroke = active ? '#00dcff' : '#a855f7';
+      nodes += `<circle cx="${layer.x}" cy="${y}" r="8" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>`;
+      if (active) nodes += `<circle cx="${layer.x}" cy="${y}" r="3" fill="${stroke}" opacity="0.85"/>`;
+    }
+  }
+
+  return svgWrap(bg + edges + nodes, 320, 160, '#06080f');
+}
+
+function thumbStar() {
+  const bg = `<defs>
+    <radialGradient id="gstar" cx="50%" cy="50%">
+      <stop offset="0%"   stop-color="#1a0e00"/>
+      <stop offset="100%" stop-color="#050208"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gstar)"/>
+  ${gridDots(320, 160, 22, 'rgba(255,255,200,0.08)')}`;
+
+  const star = `
+  <ellipse cx="160" cy="80" rx="90" ry="55" fill="rgba(251,146,60,0.04)"/>
+  <ellipse cx="160" cy="80" rx="55" ry="35" fill="rgba(251,191,36,0.07)"/>
+  <circle cx="160" cy="80" r="26" fill="rgba(251,191,36,0.15)"/>
+  <circle cx="160" cy="80" r="18" fill="rgba(251,146,60,0.35)"/>
+  <circle cx="160" cy="80" r="11" fill="#fbbf24" opacity="0.9"/>
+  <circle cx="160" cy="80" r="6"  fill="#fff"    opacity="0.95"/>
+  ${Array.from({length:8}, (_,i) => {
+    const a = i * 45 * Math.PI / 180;
+    const x1 = 160 + Math.cos(a) * 22;
+    const y1 = 80  + Math.sin(a) * 22;
+    const x2 = 160 + Math.cos(a) * 44;
+    const y2 = 80  + Math.sin(a) * 44;
+    return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>`;
+  }).join('')}
+  <circle cx="48"  cy="22"  r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="95"  cy="35"  r="1"   fill="white" opacity="0.5"/>
+  <circle cx="265" cy="30"  r="1.5" fill="white" opacity="0.6"/>
+  <circle cx="295" cy="55"  r="1"   fill="#add8ff" opacity="0.8"/>
+  <circle cx="45"  cy="120" r="1"   fill="white"   opacity="0.4"/>
+  <circle cx="280" cy="130" r="1.5" fill="#ffd0a0" opacity="0.7"/>
+  <line x1="30" y1="135" x2="100" y2="135" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+  <text x="30" y="150" fill="rgba(251,191,36,0.35)" font-size="8" font-family="Inter,sans-serif">Temp →</text>`;
+
+  return svgWrap(bg + star, 320, 160, '#050208');
+}
+
+function thumbFluid() {
+  const bg = `<defs>
+    <linearGradient id="gfluid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#031828"/>
+      <stop offset="100%" stop-color="#04121e"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#gfluid)"/>`;
+
+  let lines = '';
+  const streamY = [25, 45, 65, 80, 95, 115, 135];
+  for (const y of streamY) {
+    const distFromCenter = Math.abs(y - 80);
+    const bulge = 28 * (1 - distFromCenter / 80);
+    const color = distFromCenter < 20
+      ? `rgba(0,220,255,0.7)`
+      : distFromCenter < 40
+      ? `rgba(59,130,246,0.5)`
+      : `rgba(59,130,246,0.25)`;
+    lines += `<path d="M30 ${y} Q160 ${y - bulge} 290 ${y}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>`;
+  }
+
+  const wing = `<path d="M80 80 Q130 62 220 75 Q270 80 220 85 Q130 98 80 80Z" fill="rgba(13,25,50,0.85)" stroke="rgba(0,220,255,0.5)" stroke-width="2"/>`;
+
+  const arrows = `
+  <line x1="50"  y1="25"  x2="65"  y2="25"  stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <polygon points="65,25 60,22 60,28" fill="#fbbf24" opacity="0.8"/>
+  <line x1="50"  y1="135" x2="65"  y2="135" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <polygon points="65,135 60,132 60,138" fill="#fbbf24" opacity="0.8"/>
+  <path d="M225 78 Q240 65 252 72 Q265 79 255 87 Q245 95 232 88" fill="none" stroke="rgba(0,220,255,0.35)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="33" y="22"  fill="rgba(0,220,255,0.55)" font-size="8" font-family="Inter,sans-serif">v↑</text>
+  <text x="33" y="138" fill="rgba(59,130,246,0.55)" font-size="8" font-family="Inter,sans-serif">v↓</text>`;
+
+  return svgWrap(bg + lines + wing + arrows, 320, 160, '#020d18');
+}
+
+function thumbGenetics() {
+  const bg = `<defs>
+    <linearGradient id="ggen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e1a0a"/>
+      <stop offset="100%" stop-color="#060c04"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="160" fill="url(#ggen)"/>`;
+
+  const punnett = `
+  <rect x="100" y="30" width="120" height="110" rx="4" fill="rgba(74,222,128,0.04)" stroke="rgba(74,222,128,0.2)" stroke-width="1.5"/>
+  <line x1="160" y1="30"  x2="160" y2="140" stroke="rgba(74,222,128,0.2)" stroke-width="1"/>
+  <line x1="100" y1="85"  x2="220" y2="85"  stroke="rgba(74,222,128,0.2)" stroke-width="1"/>
+  <text x="129" y="25" fill="rgba(74,222,128,0.7)" font-size="12" font-weight="700" font-family="Inter,sans-serif" text-anchor="middle">B</text>
+  <text x="190" y="25" fill="rgba(74,222,128,0.7)" font-size="12" font-weight="700" font-family="Inter,sans-serif" text-anchor="middle">b</text>
+  <text x="93"  y="62" fill="rgba(74,222,128,0.7)" font-size="12" font-weight="700" font-family="Inter,sans-serif" text-anchor="end">B</text>
+  <text x="93"  y="117" fill="rgba(74,222,128,0.7)" font-size="12" font-weight="700" font-family="Inter,sans-serif" text-anchor="end">b</text>
+  <text x="129" y="63" fill="#4ade80" font-size="11" font-weight="600" font-family="Inter,sans-serif" text-anchor="middle">BB</text>
+  <text x="190" y="63" fill="#4ade80" font-size="11" font-weight="600" font-family="Inter,sans-serif" text-anchor="middle">Bb</text>
+  <text x="129" y="117" fill="#4ade80" font-size="11" font-weight="600" font-family="Inter,sans-serif" text-anchor="middle">Bb</text>
+  <text x="190" y="117" fill="rgba(74,222,128,0.45)" font-size="11" font-weight="600" font-family="Inter,sans-serif" text-anchor="middle">bb</text>
+  <circle cx="129" cy="73" r="5" fill="rgba(74,222,128,0.6)"/>
+  <circle cx="190" cy="73" r="5" fill="rgba(74,222,128,0.6)"/>
+  <circle cx="129" cy="127" r="5" fill="rgba(74,222,128,0.6)"/>
+  <circle cx="190" cy="127" r="3" fill="rgba(74,222,128,0.2)" stroke="rgba(74,222,128,0.4)" stroke-width="1"/>`;
+
+  const ratio = `
+  <text x="255" y="72"  fill="rgba(74,222,128,0.5)" font-size="8" font-family="Inter,sans-serif">3 : 1</text>
+  <text x="255" y="84"  fill="rgba(74,222,128,0.3)" font-size="7" font-family="Inter,sans-serif">dominant</text>`;
+
+  return svgWrap(bg + punnett + ratio, 320, 160, '#060c04');
+}
+
+/* ─── Helpers ────────────────────────────────────────────────────── */
+function svgWrap(inner, w, h, bg) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" style="width:100%;height:100%;background:${bg}">${inner}</svg>`;
+}
+
+function gridDots(w, h, spacing, color) {
+  let dots = '';
+  for (let x = spacing; x < w; x += spacing) {
+    for (let y = spacing; y < h; y += spacing) {
+      dots += `<circle cx="${x}" cy="${y}" r="1" fill="${color}"/>`;
+    }
+  }
+  return dots;
+}
+
+function badgeClass(difficulty) {
+  return {
+    'Beginner':     'badge-beginner',
+    'Intermediate': 'badge-intermediate',
+    'Advanced':     'badge-advanced'
+  }[difficulty] || 'badge-beginner';
+}
+
+/* ─── Render cards ───────────────────────────────────────────────── */
+function renderCards(subset) {
+  const grid = document.getElementById('cards-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('results-count');
+
+  Array.from(grid.querySelectorAll('.lab-card')).forEach(el => el.remove());
+
+  count.textContent = subset.length === 0
+    ? 'No results'
+    : `${subset.length} lab${subset.length !== 1 ? 's' : ''}`;
+
+  if (subset.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  subset.forEach((lab, i) => {
+    const card = document.createElement('div');
+    card.className = 'lab-card';
+    card.dataset.id = lab.id;
+    card.style.animationDelay = `${i * 60}ms`;
+
+    card.innerHTML = `
+      <div class="card-thumb">${lab.thumb}</div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-category">${lab.category}</span>
+          <span class="badge ${badgeClass(lab.difficulty)}">${lab.difficulty}</span>
+        </div>
+        <div class="card-title">${lab.title}</div>
+        <div class="card-desc">${lab.description}</div>
+        <button class="btn-enter" data-lab="${lab.title}">
+          Enter Lab
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
-          Back to Hub
-        </a>
-      </div>
-      <div class="hero-badge">Physics Sandbox</div>
-      <h1 class="sim-page-title">
-        Interactive<br />
-        <span class="gradient-text">Simulations</span>
-      </h1>
-      <p class="sim-page-subtitle">
-        Experiment with physics in real time. Adjust parameters and watch the laws of nature unfold before your eyes.
-      </p>
-    </div>
-  </section>
+        </button>
+      </div>`;
 
-  <!-- ===================== STICKY TAB STRIP ===================== -->
-  <div class="sim-tab-strip">
-    <div class="sim-tab-inner">
-      <span class="sim-tab-label">Jump to:</span>
-      <div class="demo-tabs" style="margin-bottom:0; justify-content:flex-start;">
-        <button class="demo-tab active" data-demo="projectile">Projectile Motion</button>
-        <button class="demo-tab" data-demo="pendulum">Pendulum</button>
-        <button class="demo-tab" data-demo="wave">Wave Interference</button>
-      </div>
-    </div>
-  </div>
+    grid.appendChild(card);
+  });
+}
 
-  <!-- ===================== SIMULATION BLOCKS ===================== -->
-  <section class="sim-blocks-section">
-    <div class="container">
+/* ─── Toast helper ───────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
 
-      <!-- ---- 1. Projectile Motion ---- -->
-      <div class="sim-block" id="demo-projectile">
-        <div class="sim-block-header">
-          <span class="sim-block-number">Sim 01</span>
-          <div>
-            <h2 class="sim-block-title">Projectile Motion</h2>
-            <p class="sim-block-desc">
-              Launch a projectile at any angle and initial velocity and observe its parabolic arc.
-              Explore how gravity, launch angle, and speed determine range, max height, and flight time.
-            </p>
-          </div>
-        </div>
+/* ─── Filtering logic ────────────────────────────────────────────── */
+let activeFilter = 'all';
+let searchQuery = '';
 
-        <div class="demo-layout">
-          <div class="demo-canvas-wrap">
-            <canvas id="projectileCanvas" width="760" height="400"></canvas>
-            <div class="canvas-overlay" id="projectileOverlay">
-              <span>Adjust parameters &amp; click Launch</span>
-            </div>
-          </div>
-          <div class="demo-controls">
-            <h3 class="controls-title">Projectile Motion</h3>
-            <p class="controls-desc">Simulate a projectile launched at an angle with initial velocity. Gravity = 9.8 m/s²</p>
-            <div class="control-group">
-              <label for="projAngle">Launch Angle: <strong id="angleVal">45°</strong></label>
-              <input type="range" id="projAngle" min="5" max="85" value="45" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="projVelocity">Initial Velocity: <strong id="velVal">20 m/s</strong></label>
-              <input type="range" id="projVelocity" min="5" max="40" value="20" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="projGravity">Gravity: <strong id="gravVal">9.8 m/s²</strong></label>
-              <input type="range" id="projGravity" min="1" max="25" value="9.8" step="0.1" class="slider" />
-            </div>
-            <div class="demo-readouts">
-              <div class="readout">
-                <span class="readout-label">Max Height</span>
-                <span class="readout-value" id="readMaxH">—</span>
-              </div>
-              <div class="readout">
-                <span class="readout-label">Range</span>
-                <span class="readout-value" id="readRange">—</span>
-              </div>
-              <div class="readout">
-                <span class="readout-label">Time of Flight</span>
-                <span class="readout-value" id="readTime">—</span>
-              </div>
-            </div>
-            <button class="btn btn-primary" id="launchBtn">&#9654; Launch</button>
-            <button class="btn btn-ghost" id="resetProjBtn">Reset</button>
-          </div>
-        </div>
-      </div>
+function applyFilters() {
+  let result = labs;
+  if (activeFilter !== 'all') {
+    result = result.filter(l => l.category === activeFilter);
+  }
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    result = result.filter(l =>
+      l.title.toLowerCase().includes(q) ||
+      l.description.toLowerCase().includes(q) ||
+      l.category.toLowerCase().includes(q)
+    );
+  }
+  renderCards(result);
+}
 
-      <!-- ---- 2. Pendulum ---- -->
-      <div class="sim-block" id="demo-pendulum">
-        <div class="sim-block-header">
-          <span class="sim-block-number">Sim 02</span>
-          <div>
-            <h2 class="sim-block-title">Simple Pendulum</h2>
-            <p class="sim-block-desc">
-              A mass on a string swinging under gravity. Discover the relationship between rope length
-              and period, and see how damping gradually steals energy from the system.
-            </p>
-          </div>
-        </div>
+/* ─── Event: filter chips ────────────────────────────────────────── */
+document.getElementById('filter-bar').addEventListener('click', e => {
+  const chip = e.target.closest('.lab-chip');
+  if (!chip) return;
+  document.querySelectorAll('.lab-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeFilter = chip.dataset.filter;
+  applyFilters();
+});
 
-        <div class="demo-layout">
-          <div class="demo-canvas-wrap">
-            <canvas id="pendulumCanvas" width="760" height="400"></canvas>
-          </div>
-          <div class="demo-controls">
-            <h3 class="controls-title">Simple Pendulum</h3>
-            <p class="controls-desc">A pendulum swinging under gravity. Notice how period depends on length, not mass.</p>
-            <div class="control-group">
-              <label for="pendLength">Rope Length: <strong id="lenVal">150 px</strong></label>
-              <input type="range" id="pendLength" min="60" max="220" value="150" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="pendAngle">Release Angle: <strong id="pendAngleVal">30°</strong></label>
-              <input type="range" id="pendAngle" min="5" max="75" value="30" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="pendDamping">Damping: <strong id="dampVal">0.00</strong></label>
-              <input type="range" id="pendDamping" min="0" max="0.05" value="0" step="0.001" class="slider" />
-            </div>
-            <div class="demo-readouts">
-              <div class="readout">
-                <span class="readout-label">Period (approx)</span>
-                <span class="readout-value" id="readPeriod">—</span>
-              </div>
-              <div class="readout">
-                <span class="readout-label">Angle</span>
-                <span class="readout-value" id="readAngle">—</span>
-              </div>
-            </div>
-            <button class="btn btn-primary" id="pendToggleBtn">&#9646;&#9646; Pause</button>
-            <button class="btn btn-ghost" id="resetPendBtn">Reset</button>
-          </div>
-        </div>
-      </div>
+/* ─── Event: search input (debounced) ────────────────────────────── */
+let searchDebounce;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    searchQuery = e.target.value;
+    applyFilters();
+  }, 220);
+});
 
-      <!-- ---- 3. Wave Interference ---- -->
-      <div class="sim-block" id="demo-wave">
-        <div class="sim-block-header">
-          <span class="sim-block-number">Sim 03</span>
-          <div>
-            <h2 class="sim-block-title">Wave Interference</h2>
-            <p class="sim-block-desc">
-              Two wave sources superimposed to create constructive and destructive interference patterns.
-              Match the frequencies for a standing wave, or detune them to hear (and see) beats.
-            </p>
-          </div>
-        </div>
+/* ─── Event: "Enter Lab" button (delegated) ──────────────────────── */
+document.getElementById('cards-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.btn-enter');
+  if (!btn) return;
+  showToast(`Entering ${btn.dataset.lab}…`);
+});
 
-        <div class="demo-layout">
-          <div class="demo-canvas-wrap">
-            <canvas id="waveCanvas" width="760" height="400"></canvas>
-          </div>
-          <div class="demo-controls">
-            <h3 class="controls-title">Wave Interference</h3>
-            <p class="controls-desc">Two wave sources creating constructive and destructive interference patterns.</p>
-            <div class="control-group">
-              <label for="wave1Freq">Wave 1 Frequency: <strong id="w1FreqVal">2.0 Hz</strong></label>
-              <input type="range" id="wave1Freq" min="0.5" max="5" value="2" step="0.1" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="wave2Freq">Wave 2 Frequency: <strong id="w2FreqVal">2.0 Hz</strong></label>
-              <input type="range" id="wave2Freq" min="0.5" max="5" value="2" step="0.1" class="slider" />
-            </div>
-            <div class="control-group">
-              <label for="waveAmp">Amplitude: <strong id="wAmpVal">1.0</strong></label>
-              <input type="range" id="waveAmp" min="0.2" max="2" value="1" step="0.1" class="slider" />
-            </div>
-            <div class="demo-readouts">
-              <div class="readout">
-                <span class="readout-label">Beat Frequency</span>
-                <span class="readout-value" id="readBeat">—</span>
-              </div>
-              <div class="readout">
-                <span class="readout-label">Pattern</span>
-                <span class="readout-value" id="readPattern">—</span>
-              </div>
-            </div>
-            <button class="btn btn-primary" id="waveToggleBtn">&#9646;&#9646; Pause</button>
-            <button class="btn btn-ghost" id="resetWaveBtn">Reset</button>
-          </div>
-        </div>
-      </div>
+/* ─── Initial render ─────────────────────────────────────────────── */
+renderCards(labs);
 
-    </div>
-  </section>
-
-  <!-- ===================== FOOTER BACK LINK ===================== -->
-  <div class="sim-footer-back">
-    <div class="container">
-      <p>Want to explore more? Head back to the full learning hub.</p>
-      <a href="index.html" class="btn btn-primary">Back to Physics Hub</a>
-    </div>
-  </div>
-
-  <!-- ===================== FOOTER ===================== -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="nav-logo">
-            <span class="logo-icon">⚛</span>
-            <span class="logo-text">PhysicsHub</span>
-          </div>
-          <p>An interactive learning platform for physics students and educators.</p>
-        </div>
-        <div class="footer-links">
-          <h4>Simulations</h4>
-          <ul>
-            <li><a href="#demo-projectile">Projectile Motion</a></li>
-            <li><a href="#demo-pendulum">Pendulum</a></li>
-            <li><a href="#demo-wave">Wave Interference</a></li>
-          </ul>
-        </div>
-        <div class="footer-links">
-          <h4>Site</h4>
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="index.html#topics">Topics</a></li>
-            <li><a href="index.html#resources">Resources</a></li>
-            <li><a href="index.html#about">About</a></li>
-          </ul>
-        </div>
-        <div class="footer-links">
-          <h4>Resources</h4>
-          <ul>
-            <li><a href="index.html#resources">Video Lectures</a></li>
-            <li><a href="index.html#resources">Study Guides</a></li>
-            <li><a href="index.html#resources">Practice Problems</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2025 Physics Learning Hub. Built for educational use.</p>
-        <p>Powered by curiosity and the laws of nature.</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Scripts — no particles.js needed on this page -->
-  <script src="simulations.js"></script>
+/* ─── PhysicsHub navbar: scroll effect + mobile toggle ──────────── */
+(function () {
+  const navbar   = document.getElementById('navbar');
+  const toggle   = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+  toggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+    toggle.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      toggle.classList.remove('open');
+    });
+  });
+})();
+</script>
 </body>
 </html>

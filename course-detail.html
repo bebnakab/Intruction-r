@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Mastery: Build Modern UIs – LearnHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #070b14;
+            --bg-secondary: #0d1220;
+            --bg-tertiary: #111827;
+            --accent-primary: #6366f1;
+            --accent-secondary: #f59e0b;
+            --text-primary: #f1f5ff;
+            --text-secondary: #94a3b8;
+            --border: rgba(99, 102, 241, 0.18);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        :root.light {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #ebebeb;
+            --accent-primary: #4f46e5;
+            --accent-secondary: #d97706;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --border: #d0d0d0;
+        }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            height: 70px;
+            background: rgba(7, 11, 20, 0.8);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .navbar.scrolled {
+            background: rgba(7, 11, 20, 0.96);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .nav-logo:hover { opacity: 0.85; }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
+            animation: atomSpin 12s linear infinite;
+        }
+
+        @keyframes atomSpin {
+            from { filter: drop-shadow(0 0 8px rgba(99,102,241,0.8)) hue-rotate(0deg); }
+            to   { filter: drop-shadow(0 0 8px rgba(139,92,246,0.8)) hue-rotate(360deg); }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-link {
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.2s, background 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 22px; height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        /* Course Header */
+        .course-header {
+            background: linear-gradient(135deg, #070b14 0%, #0d1220 100%);
+            padding: 3rem 2rem;
+            padding-top: calc(70px + 3rem);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .course-header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .course-header-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .course-header-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .course-header-left p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .course-header-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-item i {
+            color: var(--accent-secondary);
+            font-size: 1.1rem;
+        }
+
+        .meta-item span {
+            font-size: 0.95rem;
+        }
+
+        .course-header-right {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+            text-align: center;
+        }
+
+        .course-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .course-price-large {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .original-price {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-decoration: line-through;
+            margin-bottom: 1rem;
+        }
+
+        .btn-enroll {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+        }
+
+        .btn-enroll:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-wishlist {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-wishlist:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Main Content */
+        .course-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        /* Video Placeholder */
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .video-placeholder:hover {
+            border-color: var(--accent-primary);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(139, 92, 246, 0.4));
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            color: var(--accent-primary);
+        }
+
+        /* What You'll Learn */
+        .learn-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .learn-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .learn-item i {
+            color: var(--accent-secondary);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .learn-item span {
+            font-size: 0.95rem;
+        }
+
+        /* Curriculum Accordion */
+        .curriculum-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .curriculum-section {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .curriculum-header {
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .curriculum-header:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .curriculum-header.active {
+            background-color: rgba(99, 102, 241, 0.15);
+            border-bottom: 1px solid var(--accent-primary);
+        }
+
+        .curriculum-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .curriculum-title {
+            font-weight: 600;
+            color: white;
+        }
+
+        .curriculum-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .curriculum-icon {
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .curriculum-header.active .curriculum-icon {
+            color: var(--accent-primary);
+            transform: rotate(180deg);
+        }
+
+        .curriculum-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .curriculum-content.active {
+            max-height: 600px;
+        }
+
+        .curriculum-item {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .curriculum-item-icon {
+            color: var(--accent-secondary);
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .curriculum-item-title {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .curriculum-item-duration {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Instructor Card (Sidebar) */
+        .instructor-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .instructor-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .instructor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .instructor-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .instructor-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .instructor-bio {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .instructor-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .btn-follow {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-follow:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Reviews */
+        .review-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .review-item:first-child {
+            padding-top: 0;
+        }
+
+        .review-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .review-info {
+            flex: 1;
+        }
+
+        .review-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .review-stars {
+            color: var(--accent-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .review-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .review-text {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .course-header-content {
+                grid-template-columns: 1fr;
+            }
+
+            .course-content {
+                grid-template-columns: 1fr;
+            }
+
+            .course-header-left h1 {
+                font-size: 1.75rem;
+            }
+
+            .instructor-card {
+                position: static;
+            }
+
+            .learn-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="main.html" class="nav-logo">
+        <span class="logo-icon">⚛</span>
+        <span class="logo-text">PhysicsHub</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="main-course.html" class="nav-link">Course</a></li>
+        <li><a href="simulations.html" class="nav-link">Simulations</a></li>
+        <li><a href="main-course.html#resources" class="nav-link">Resources</a></li>
+        <li><a href="main-course.html#about" class="nav-link">About</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+    <!-- Course Header -->
+    <section class="course-header">
+        <div class="course-header-container">
+            <div class="breadcrumb">
+                <a href="main-course.html">Home</a> / <a href="main-course.html#courses">Courses</a> / React Mastery
+            </div>
+            <div class="course-header-content">
+                <div class="course-header-left">
+                    <h1>React Mastery: Build Modern User Interfaces</h1>
+                    <p>Master React from fundamentals to advanced patterns. Build real-world applications with hooks, context, and state management.</p>
+                    <div class="course-header-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-star"></i>
+                            <span><strong>4.9</strong> (2,348 reviews)</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-users"></i>
+                            <span><strong>12.5K</strong> students</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-book"></i>
+                            <span><strong>48</strong> lessons</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span><strong>28</strong> hours</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-header-right">
+                    <div class="course-thumbnail">📱</div>
+                    <button class="btn-enroll">Enroll Now</button>
+                    <button class="btn-wishlist"><i class="far fa-heart"></i> Add to Wishlist</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Content + Sidebar -->
+    <div class="course-content">
+        <div class="content-left">
+
+            <!-- Curriculum -->
+            <div class="section-card">
+                <h3 class="section-title">Course Curriculum</h3>
+                <div class="curriculum-wrapper">
+
+                    <div class="curriculum-section">
+                        <div class="curriculum-header active" onclick="toggleCurriculum(this)">
+                            <div class="curriculum-header-left">
+                                <div class="curriculum-title">Section 1: Getting Started with React</div>
+                                <div class="curriculum-meta">8 lessons • 2h 15m</div>
+                            </div>
+                            <i class="fas fa-chevron-down curriculum-icon"></i>
+                        </div>
+                        <div class="curriculum-content active">
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">1.1 Course Overview & Setup</span>
+                                <span class="curriculum-item-duration">12:30</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">1.2 Understanding JSX & Components</span>
+                                <span class="curriculum-item-duration">18:45</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">1.3 Props & Component Composition</span>
+                                <span class="curriculum-item-duration">22:15</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">1.4 Event Handling in React</span>
+                                <span class="curriculum-item-duration">16:50</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-file-alt curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">1.5 Project: Todo App (Part 1)</span>
+                                <span class="curriculum-item-duration">Quiz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="curriculum-section">
+                        <div class="curriculum-header" onclick="toggleCurriculum(this)">
+                            <div class="curriculum-header-left">
+                                <div class="curriculum-title">Section 2: State Management & Hooks</div>
+                                <div class="curriculum-meta">10 lessons • 3h 30m</div>
+                            </div>
+                            <i class="fas fa-chevron-down curriculum-icon"></i>
+                        </div>
+                        <div class="curriculum-content">
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">2.1 Introduction to Hooks</span>
+                                <span class="curriculum-item-duration">20:00</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">2.2 useState Hook Explained</span>
+                                <span class="curriculum-item-duration">25:30</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">2.3 useEffect & Side Effects</span>
+                                <span class="curriculum-item-duration">28:15</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">2.4 Custom Hooks</span>
+                                <span class="curriculum-item-duration">19:45</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="curriculum-section">
+                        <div class="curriculum-header" onclick="toggleCurriculum(this)">
+                            <div class="curriculum-header-left">
+                                <div class="curriculum-title">Section 3: Advanced Patterns & Optimization</div>
+                                <div class="curriculum-meta">8 lessons • 2h 50m</div>
+                            </div>
+                            <i class="fas fa-chevron-down curriculum-icon"></i>
+                        </div>
+                        <div class="curriculum-content">
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">3.1 Context API & Provider Pattern</span>
+                                <span class="curriculum-item-duration">24:00</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">3.2 Memoization with useMemo & useCallback</span>
+                                <span class="curriculum-item-duration">22:10</span>
+                            </div>
+                            <div class="curriculum-item">
+                                <i class="fas fa-play-circle curriculum-item-icon"></i>
+                                <span class="curriculum-item-title">3.3 Error Boundaries & Suspense</span>
+                                <span class="curriculum-item-duration">18:30</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="section-card">
+                <h3 class="section-title">Student Reviews</h3>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-avatar">👩‍💻</div>
+                        <div class="review-info">
+                            <div class="review-name">Sarah Mitchell</div>
+                            <div class="review-stars">★★★★★</div>
+                            <div class="review-date">2 weeks ago</div>
+                        </div>
+                    </div>
+                    <div class="review-text">"Excellent course! The instructor breaks down complex concepts into digestible chunks. The projects are practical and really solidified my understanding of React hooks."</div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-avatar">👨‍💼</div>
+                        <div class="review-info">
+                            <div class="review-name">David Chen</div>
+                            <div class="review-stars">★★★★★</div>
+                            <div class="review-date">1 month ago</div>
+                        </div>
+                    </div>
+                    <div class="review-text">"Great content and well-paced lessons. Landed a React developer job 3 months after completing this course. Highly recommended!"</div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-avatar">👩‍🔬</div>
+                        <div class="review-info">
+                            <div class="review-name">Emily Rodriguez</div>
+                            <div class="review-stars">★★★★★</div>
+                            <div class="review-date">3 weeks ago</div>
+                        </div>
+                    </div>
+                    <div class="review-text">"The projects throughout the course are incredibly well-designed. They force you to think critically and apply what you've learned in real-world scenarios."</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Theme — syncs with landing page via localStorage
+        const root = document.documentElement;
+        const savedTheme = localStorage.getItem('learnhub-theme') || 'dark';
+        if (savedTheme === 'light') root.classList.add('light');
+        function updateThemeIcon() {
+            const isLight = root.classList.contains('light');
+            document.getElementById('themeIcon').className = isLight ? 'fas fa-moon' : 'fas fa-sun';
+        }
+        updateThemeIcon();
+        function toggleTheme() {
+            root.classList.toggle('light');
+            localStorage.setItem('learnhub-theme', root.classList.contains('light') ? 'light' : 'dark');
+            updateThemeIcon();
+        }
+
+        function toggleCurriculum(header) {
+            const content = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
+
+            document.querySelectorAll('.curriculum-header').forEach(h => {
+                h.classList.remove('active');
+                h.nextElementSibling.classList.remove('active');
+            });
+
+            if (!isActive) {
+                header.classList.add('active');
+                content.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
